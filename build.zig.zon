@@ -1,0 +1,13 @@
+.{
+    .name = "zigex",
+    .version = "0.0.1",
+    .minimum_zig_version = "0.12.0",
+    .dependencies = .{ },
+    .paths = .{
+        // This makes *all* files, recursively, included in this package. It is generally
+        // better to explicitly list the files and directories instead, to insure that
+        // fetching from tarballs, file system paths, and version control all result
+        // in the same contents hash.
+        "",
+    },
+}
