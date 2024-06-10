@@ -55,7 +55,7 @@ pub const Error = std.mem.Allocator.Error || error{
     NotSupported,
 };
 
-pub fn init(allocator: std.mem.Allocator, pattern: []const u8, flags: InitFlags) Error!Self {
+pub fn init(allocator: std.mem.Allocator, pattern: [:0]const u8, flags: InitFlags) Error!Self {
     const bytes = try allocator.alloc(u8, SIZEOF);
     errdefer allocator.free(bytes);
     const ptr: *re.regex_t = @alignCast(@ptrCast(bytes));
@@ -73,14 +73,14 @@ pub fn deinit(self: *Self) void {
     self.allocator.free(bytes[0..SIZEOF]);
 }
 
-pub fn match(self: *Self, buffer: []const u8) !bool {
+pub fn match(self: *Self, buffer: [:0]const u8) !bool {
     const status = re.regexec(self.ptr, @ptrCast(buffer), 0, null, 0);
     if (errorFromStatus(status)) |err| return err;
 
     return status != re.REG_NOMATCH;
 }
 
-pub fn captures(self: *Self, comptime num: usize, buffer: []const u8) Error!?[num][]const u8 {
+pub fn captures(self: *Self, comptime num: usize, buffer: [:0]const u8) Error!?[num][]const u8 {
     if (num == 0) @compileError("you must capture at least one group.");
 
     var matches: [num]re.regmatch_t = undefined;
@@ -107,7 +107,7 @@ pub fn captures(self: *Self, comptime num: usize, buffer: []const u8) Error!?[nu
     return output;
 }
 
-pub fn errorMessage(err: Error, buffer: []u8) []const u8 {
+pub fn errorMessage(err: Error, buffer: [:0]u8) []const u8 {
     const status: c_int = switch (err) {
         Error.BadPattern => re.REG_BADPAT,
         Error.CollatingElementRef => re.REG_ECOLLATE,
